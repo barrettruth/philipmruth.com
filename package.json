@@ -1,0 +1,31 @@
+{
+  "name": "philipmruth.com",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "prepare": "husky",
+    "check": "astro check"
+  },
+  "lint-staged": {
+    "*.{js,ts,jsx,tsx,json,css,scss,md,astro,html,yaml,yml}": [
+      "prettier --write",
+      "astro check"
+    ]
+  },
+  "dependencies": {
+    "astro": "^5.16.8"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.6",
+    "@typescript-eslint/parser": "^8.52.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.4",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^5.9.3"
+  }
+}
