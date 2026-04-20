@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  lint:
+  quality:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,14 +23,19 @@ jobs:
           node-version: 20
           cache: "pnpm"
 
+      - name: Install just
+        uses: taiki-e/install-action@v2
+        with:
+          tool: just
+
       - name: Install dependencies
         run: pnpm install
 
-      - name: Prettier check
-        run: pnpm prettier --check .
+      - name: Format
+        run: just format
 
-      - name: Astro check
-        run: pnpm astro check
+      - name: Lint
+        run: just lint
 
       - name: Build
-        run: pnpm build
+        run: just build
