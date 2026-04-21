@@ -1,16 +1,19 @@
 default:
     @just --list
 
-run:
+install:
+    pnpm install --frozen-lockfile
+
+run: install
     pnpm dev
 
-build:
+build: install
     pnpm build
 
-format:
+format: install
     pnpm prettier --check .
 
-lint:
+lint: install
     pnpm check
 
 ci: format lint build
