@@ -11,7 +11,7 @@ build: install
     pnpm build
 
 format: install
-    pnpm prettier --check .
+    pnpm exec biome format .
 
 lint: install
     pnpm check
