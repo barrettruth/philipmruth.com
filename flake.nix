@@ -24,8 +24,10 @@
         let
           commonPackages = [
             pkgs.nodejs_22
+            pkgs.openssh
             pkgs.pnpm
             pkgs.just
+            pkgs.rsync
           ];
         in
         {
