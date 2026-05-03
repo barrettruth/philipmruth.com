@@ -1,0 +1,47 @@
+name: Bug Report
+description: Report an issue with philipmruth.com
+title: 'bug: '
+labels: [bug]
+body:
+  - type: checkboxes
+    attributes:
+      label: Prerequisites
+      options:
+        - label: I have searched existing issues and this is not a duplicate
+          required: true
+
+  - type: input
+    attributes:
+      label: URL or path
+      placeholder: https://philipmruth.com/
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Browser and device
+      placeholder: Chrome 124 on Linux, Safari on iPhone, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: What happened, and what did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Screenshots, console output, or other details that may help
