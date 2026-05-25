@@ -22,12 +22,27 @@
       devShells = forEachSystem (
         pkgs:
         let
+          pythonEnv = pkgs.python3.withPackages (
+            ps: with ps; [
+              pillow
+              pillow-heif
+              rich
+              typer
+            ]
+          );
           commonPackages = [
             pkgs.nodejs_22
             pkgs.openssh
             pkgs.pnpm
             pkgs.just
             pkgs.rsync
+            pkgs.uv
+            pkgs.exiftool
+            pkgs.libheif
+            pkgs.imagemagick
+            pkgs.vips
+            pkgs.libwebp
+            pythonEnv
           ];
         in
         {

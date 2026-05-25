@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 .claude/
 .vercel/
+
+data/vinyl/raw/
+src/data/vinyl.generated.json

@@ -3,11 +3,15 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
+    "generate:vinyl": "node scripts/generate-vinyl-data.mjs",
+    "prebuild": "pnpm generate:vinyl",
     "build": "astro build",
+    "predev": "pnpm generate:vinyl",
     "dev": "astro dev",
     "preview": "astro preview",
     "astro": "astro",
     "prepare": "husky",
+    "precheck": "pnpm generate:vinyl",
     "check": "astro check"
   },
   "lint-staged": {

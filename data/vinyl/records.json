@@ -1,0 +1,511 @@
+{
+  "schemaVersion": 1,
+  "records": [
+    {
+      "id": "vinyl-0001",
+      "slug": "alice-coltrane-journey-in-satchidananda",
+      "artist": "Alice Coltrane",
+      "title": "Journey in Satchidananda",
+      "year": 1971,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0002",
+      "slug": "bill-evans-portrait-in-jazz",
+      "artist": "Bill Evans",
+      "title": "Portrait in Jazz",
+      "year": 1960,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0003",
+      "slug": "can-ege-bamyasi",
+      "artist": "Can",
+      "title": "Ege Bamyasi",
+      "year": 1972,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0004",
+      "slug": "david-bowie-low",
+      "artist": "David Bowie",
+      "title": "Low",
+      "year": 1977,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0005",
+      "slug": "david-bowie-station-to-station",
+      "artist": "David Bowie",
+      "title": "Station to Station",
+      "year": 1976,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0006",
+      "slug": "brian-eno-another-green-world",
+      "artist": "Brian Eno",
+      "title": "Another Green World",
+      "year": 1975,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0007",
+      "slug": "fleetwood-mac-rumours",
+      "artist": "Fleetwood Mac",
+      "title": "Rumours",
+      "year": 1977,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0008",
+      "slug": "fleetwood-mac-tusk",
+      "artist": "Fleetwood Mac",
+      "title": "Tusk",
+      "year": 1979,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0009",
+      "slug": "gil-scott-heron-pieces-of-a-man",
+      "artist": "Gil Scott-Heron",
+      "title": "Pieces of a Man",
+      "year": 1971,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0010",
+      "slug": "herbie-hancock-head-hunters",
+      "artist": "Herbie Hancock",
+      "title": "Head Hunters",
+      "year": 1973,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0011",
+      "slug": "joni-mitchell-blue",
+      "artist": "Joni Mitchell",
+      "title": "Blue",
+      "year": 1971,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0012",
+      "slug": "joni-mitchell-hejira",
+      "artist": "Joni Mitchell",
+      "title": "Hejira",
+      "year": 1976,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0013",
+      "slug": "kraftwerk-trans-europe-express",
+      "artist": "Kraftwerk",
+      "title": "Trans-Europe Express",
+      "year": 1977,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0014",
+      "slug": "laurie-anderson-big-science",
+      "artist": "Laurie Anderson",
+      "title": "Big Science",
+      "year": 1982,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0015",
+      "slug": "marvin-gaye-what-s-going-on",
+      "artist": "Marvin Gaye",
+      "title": "What's Going On",
+      "year": 1971,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0016",
+      "slug": "nina-simone-little-girl-blue",
+      "artist": "Nina Simone",
+      "title": "Little Girl Blue",
+      "year": 1958,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0017",
+      "slug": "nina-simone-pastel-blues",
+      "artist": "Nina Simone",
+      "title": "Pastel Blues",
+      "year": 1965,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0018",
+      "slug": "patti-smith-horses",
+      "artist": "Patti Smith",
+      "title": "Horses",
+      "year": 1975,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0019",
+      "slug": "roxy-music-for-your-pleasure",
+      "artist": "Roxy Music",
+      "title": "For Your Pleasure",
+      "year": 1973,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0020",
+      "slug": "sade-diamond-life",
+      "artist": "Sade",
+      "title": "Diamond Life",
+      "year": 1984,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0021",
+      "slug": "talk-talk-spirit-of-eden",
+      "artist": "Talk Talk",
+      "title": "Spirit of Eden",
+      "year": 1988,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    },
+    {
+      "id": "vinyl-0022",
+      "slug": "terry-callier-what-color-is-love",
+      "artist": "Terry Callier",
+      "title": "What Color Is Love",
+      "year": 1972,
+      "metadata": {},
+      "photos": {
+        "front": null,
+        "back": null,
+        "spine": null,
+        "label": null,
+        "runout": null
+      },
+      "display": {
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
+        "back": null
+      }
+    }
+  ]
+}

@@ -1,12 +1,39 @@
 ---
-import vinylData from "../../data/vinyl.json";
+import vinylData from "../../data/vinyl.generated.json";
 
 const title = "vinyl";
 const description = "Philip Matthew Ruth vinyl collection";
 
-type Album = (typeof vinylData.albums)[number];
+type VinylImage = {
+  src: string;
+  width: number;
+  height: number;
+};
 
-const albums = vinylData.albums
+type VinylImageRole = "front" | "back" | "spine" | "label" | "runout";
+
+type VinylRecord = {
+  id: string;
+  slug: string;
+  artist: string;
+  title: string;
+  year: number;
+  metadata: Record<string, unknown>;
+  images: {
+    display: {
+      front: VinylImage | null;
+      back: VinylImage | null;
+    };
+    actual: Array<VinylImage & { role: VinylImageRole }>;
+  };
+};
+
+const getCoverImage = (record: VinylRecord) =>
+  record.images.display.front ??
+  record.images.actual.find((image) => image.role === "front") ??
+  null;
+
+const records = (vinylData.records as VinylRecord[])
   .slice()
   .sort(
     (left, right) =>
@@ -15,10 +42,10 @@ const albums = vinylData.albums
   );
 
 const sections = Object.entries(
-  albums.reduce<Record<string, Album[]>>((groups, album) => {
-    const letter = album.artist.charAt(0).toUpperCase();
+  records.reduce<Record<string, VinylRecord[]>>((groups, record) => {
+    const letter = record.artist.charAt(0).toUpperCase();
     groups[letter] ??= [];
-    groups[letter].push(album);
+    groups[letter].push(record);
     return groups;
   }, {}),
 )
@@ -60,24 +87,32 @@ const sections = Object.entries(
               <section id={`letter-${letter}`} class="letter-section" data-letter-section={letter}>
                 <h2 class="sr-only">{letter}</h2>
                 <div class="album-grid">
-                  {items.map((album) => (
-                    <article class="album-card">
-                      <div class="album-frame">
-                        <img
-                          src={album.imageUrl}
-                          alt={`${album.title} placeholder cover for ${album.artist}`}
-                          width={album.imageWidth}
-                          height={album.imageHeight}
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      </div>
-                      <div class="album-meta">
-                        <h3 class="artist-name">{album.artist}</h3>
-                        <p class="album-title">{album.title}</p>
-                      </div>
-                    </article>
-                  ))}
+                  {items.map((record) => {
+                    const cover = getCoverImage(record);
+
+                    return (
+                      <article class="album-card">
+                        <div class="album-frame">
+                          {
+                            cover ? (
+                              <img
+                                src={cover.src}
+                                alt={`Cover art for ${record.title} by ${record.artist}`}
+                                width={cover.width}
+                                height={cover.height}
+                                loading="lazy"
+                                decoding="async"
+                              />
+                            ) : null
+                          }
+                        </div>
+                        <div class="album-meta">
+                          <h3 class="artist-name">{record.artist}</h3>
+                          <p class="album-title">{record.title}</p>
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
               </section>
             ))
@@ -161,6 +196,8 @@ const sections = Object.entries(
     --rule-strong: #3b5bdb;
     --section-rule: #d0d0d0;
     --surface: #ebebeb;
+    --header-spacing: 1.5rem;
+    --header-font-size: clamp(1.2rem, 3vmin, 2em);
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -185,21 +222,20 @@ const sections = Object.entries(
   }
   .vinyl-page {
     min-height: 100vh;
-    padding: clamp(1.5rem, 4vw, 2.5rem);
-    padding-top: 1.5rem;
+    padding: var(--header-spacing);
   }
   .page-header {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: space-between;
-    gap: 1rem;
+    gap: var(--header-spacing);
     margin-bottom: 2rem;
   }
   .back-link,
   .page-title {
     margin: 0;
     color: inherit;
-    font-size: clamp(1.05rem, 2.5vmin, 1.45rem);
+    font-size: var(--header-font-size);
     font-weight: 400;
     line-height: 1;
   }
@@ -319,10 +355,6 @@ const sections = Object.entries(
     border: 0;
   }
   @media (min-width: 48rem) {
-    .vinyl-page {
-      padding-inline: 2rem;
-      padding-top: 1.5rem;
-    }
     .catalog-layout {
       grid-template-columns: 1.5rem minmax(0, 1fr);
       column-gap: 2rem;
