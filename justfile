@@ -18,11 +18,3 @@ lint: install
 
 ci: format lint build
     @:
-
-# Show the current protected-branch rule for main.
-branch-protection:
-    tea api '/repos/{owner}/{repo}/branch_protections/main'
-
-# Allow direct pushes to main while keeping the branch protected.
-allow-main-push:
-    tea api -X PATCH -d '{"enable_push":true}' '/repos/{owner}/{repo}/branch_protections/main'
