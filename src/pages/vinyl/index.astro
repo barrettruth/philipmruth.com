@@ -1,0 +1,344 @@
+---
+import vinylData from "../../data/vinyl.json";
+
+const title = "vinyl";
+const description = "Philip Matthew Ruth vinyl collection";
+
+type Album = (typeof vinylData.albums)[number];
+
+const albums = vinylData.albums
+  .slice()
+  .sort(
+    (left, right) =>
+      left.artist.localeCompare(right.artist) ||
+      left.title.localeCompare(right.title),
+  );
+
+const sections = Object.entries(
+  albums.reduce<Record<string, Album[]>>((groups, album) => {
+    const letter = album.artist.charAt(0).toUpperCase();
+    groups[letter] ??= [];
+    groups[letter].push(album);
+    return groups;
+  }, {}),
+)
+  .sort(([left], [right]) => left.localeCompare(right))
+  .map(([letter, items]) => ({ letter, items }));
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="vinyl-page">
+      <header class="page-header">
+        <a class="back-link" href="/">← philip ruth</a>
+        <h1 class="page-title">vinyl</h1>
+      </header>
+
+      <div class="catalog-layout">
+        <nav class="letter-index" aria-label="jump to artist letter">
+          <p class="sr-only" id="active-letter-status" aria-live="polite"></p>
+          {
+            sections.map(({ letter }) => (
+              <a href={`#letter-${letter}`} data-letter-link={letter} class="letter-link">
+                {letter}
+              </a>
+            ))
+          }
+        </nav>
+
+        <main class="collection">
+          {
+            sections.map(({ letter, items }) => (
+              <section id={`letter-${letter}`} class="letter-section" data-letter-section={letter}>
+                <h2 class="sr-only">{letter}</h2>
+                <div class="album-grid">
+                  {items.map((album) => (
+                    <article class="album-card">
+                      <div class="album-frame">
+                        <img
+                          src={album.imageUrl}
+                          alt={`${album.title} placeholder cover for ${album.artist}`}
+                          width={album.imageWidth}
+                          height={album.imageHeight}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
+                      <div class="album-meta">
+                        <h3 class="artist-name">{album.artist}</h3>
+                        <p class="album-title">{album.title}</p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            ))
+          }
+        </main>
+      </div>
+    </div>
+
+    <script is:inline>
+      const sections = Array.from(document.querySelectorAll("[data-letter-section]"));
+      const letterLinks = new Map(
+        Array.from(document.querySelectorAll("[data-letter-link]")).map((link) => [
+          link.dataset.letterLink,
+          link,
+        ]),
+      );
+      const activeLetterStatus = document.querySelector("#active-letter-status");
+      let activeLetter = "";
+
+      const setActiveLetter = (letter) => {
+        if (!letter || activeLetter === letter) return;
+        activeLetter = letter;
+        letterLinks.forEach((link, key) => {
+          const isActive = key === letter;
+          link.classList.toggle("is-active", isActive);
+          if (isActive) {
+            link.setAttribute("aria-current", "true");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+        if (activeLetterStatus) {
+          activeLetterStatus.textContent = `section ${letter}`;
+        }
+      };
+
+      const syncActiveLetter = () => {
+        const threshold = Math.max(72, window.innerHeight * 0.18);
+        let currentLetter = sections[0]?.dataset.letterSection ?? "";
+
+        sections.forEach((section) => {
+          if (section.getBoundingClientRect().top <= threshold) {
+            currentLetter = section.dataset.letterSection;
+          }
+        });
+
+        setActiveLetter(currentLetter);
+      };
+
+      window.addEventListener("scroll", syncActiveLetter, { passive: true });
+      window.addEventListener("resize", syncActiveLetter);
+      letterLinks.forEach((link, letter) => {
+        link.addEventListener("click", () => setActiveLetter(letter));
+      });
+      syncActiveLetter();
+    </script>
+  </body>
+</html>
+
+<style>
+  @font-face {
+    font-family: "Signifier";
+    src: url("/fonts/signifier/Signifier-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Signifier";
+    src: url("/fonts/signifier/Signifier-RegularItalic.ttf") format("truetype");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+  }
+  :root {
+    color-scheme: light dark;
+    --background: #f5f5f5;
+    --text: #1a1a1a;
+    --text-muted: rgb(153 153 153 / 100%);
+    --rule: #e8e8e8;
+    --rule-strong: #3b5bdb;
+    --section-rule: #d0d0d0;
+    --surface: #ebebeb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #121212;
+      --text: #e0e0e0;
+      --text-muted: #666666;
+      --rule: #3d3d3d;
+      --rule-strong: #7aa2f7;
+      --section-rule: #4a4a4a;
+      --surface: #2d2d2d;
+    }
+  }
+  html,
+  body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--background);
+    color: var(--text);
+  }
+  body {
+    font-family: "Signifier", serif;
+  }
+  .vinyl-page {
+    min-height: 100vh;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    padding-top: 1.5rem;
+  }
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .back-link,
+  .page-title {
+    margin: 0;
+    color: inherit;
+    font-size: clamp(1.05rem, 2.5vmin, 1.45rem);
+    font-weight: 400;
+    line-height: 1;
+  }
+  .back-link {
+    text-decoration: none;
+  }
+  .back-link:hover,
+  .back-link:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+  .catalog-layout {
+    display: grid;
+    grid-template-columns: 1rem minmax(0, 1fr);
+    align-items: start;
+    column-gap: 1rem;
+  }
+  .letter-index {
+    position: sticky;
+    top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0.55rem;
+    align-items: flex-start;
+  }
+  .letter-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    font-size: 0.92rem;
+    letter-spacing: 0.08em;
+    line-height: 1;
+  }
+  .letter-link:hover,
+  .letter-link:focus-visible {
+    color: var(--text);
+    border-color: currentColor;
+    outline: none;
+  }
+  .letter-link.is-active {
+    color: var(--text);
+    border-color: currentColor;
+  }
+  .collection {
+    display: grid;
+    gap: 0;
+  }
+  .letter-section {
+    display: grid;
+    gap: 0;
+    scroll-margin-top: 6rem;
+    margin-top: 1.75rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--section-rule);
+  }
+  .letter-section:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+  .artist-name {
+    margin: 0;
+    font-weight: 400;
+  }
+  .album-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    gap: 1.5rem 1.25rem;
+  }
+  .album-card {
+    display: grid;
+    gap: 0.8rem;
+    min-width: 0;
+  }
+  .album-frame {
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .album-frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .artist-name {
+    font-size: clamp(1.05rem, 2.6vmin, 1.22rem);
+    line-height: 1.15;
+  }
+  .album-meta {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+  .album-title {
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .album-title {
+    color: var(--text-muted);
+    font-size: clamp(0.92rem, 2.2vmin, 1rem);
+    font-style: italic;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  @media (min-width: 48rem) {
+    .vinyl-page {
+      padding-inline: 2rem;
+      padding-top: 1.5rem;
+    }
+    .catalog-layout {
+      grid-template-columns: 1.5rem minmax(0, 1fr);
+      column-gap: 2rem;
+    }
+    .letter-index {
+      top: 1.5rem;
+    }
+    .album-grid {
+      grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+      gap: 2rem 1.5rem;
+    }
+  }
+  @media (min-width: 72rem) {
+    .album-grid {
+      grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
+      gap: 2.25rem 1.75rem;
+    }
+  }
+</style>

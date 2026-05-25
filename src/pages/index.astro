@@ -15,6 +15,7 @@ const description = "Philip Matthew Ruth";
   <body>
     <div class="death-container">
       <img id="death-image" src="/death/death.webp" alt="Philip Matthew Ruth" />
+      <a class="section-link" href="/vinyl/">vinyl</a>
       <div id="tribute-text" class="tribute">
         rip philip matthew ruth<br />
         february 8, 1967 – c. december 2, 2025
@@ -67,6 +68,19 @@ const description = "Philip Matthew Ruth";
     height: 100%;
     object-fit: cover;
     display: block;
+  }
+  .section-link {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 1.5rem;
+    z-index: 10;
+    font-family: "Signifier", serif;
+    font-size: clamp(1.2rem, 3vmin, 2em);
+    color: white;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    text-shadow: 0 1px 4px rgb(0 0 0 / 70%);
   }
   .tribute {
     grid-row: 2;
