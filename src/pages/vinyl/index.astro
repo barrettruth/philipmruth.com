@@ -1,56 +1,31 @@
 ---
 import vinylData from "../../data/vinyl.generated.json";
+import VinylDetailPanel from "../../components/VinylDetailPanel.astro";
+import {
+  buildSections,
+  getDetailHref,
+  getListingCover,
+  sortRecords,
+  type VinylRecord,
+} from "../../lib/vinyl";
 
 const title = "vinyl";
 const description = "Philip Matthew Ruth vinyl collection";
 
-type VinylImage = {
-  src: string;
-  width: number;
-  height: number;
-};
-
-type VinylImageRole = "front" | "back" | "spine" | "label" | "runout";
-
-type VinylRecord = {
-  id: string;
-  slug: string;
-  artist: string;
-  title: string;
-  year: number;
-  metadata: Record<string, unknown>;
-  images: {
-    display: {
-      front: VinylImage | null;
-      back: VinylImage | null;
-    };
-    actual: Array<VinylImage & { role: VinylImageRole }>;
-  };
-};
-
-const getCoverImage = (record: VinylRecord) =>
-  record.images.display.front ??
-  record.images.actual.find((image) => image.role === "front") ??
-  null;
-
-const records = (vinylData.records as VinylRecord[])
-  .slice()
-  .sort(
-    (left, right) =>
-      left.artist.localeCompare(right.artist) ||
-      left.title.localeCompare(right.title),
-  );
-
-const sections = Object.entries(
-  records.reduce<Record<string, VinylRecord[]>>((groups, record) => {
-    const letter = record.artist.charAt(0).toUpperCase();
-    groups[letter] ??= [];
-    groups[letter].push(record);
-    return groups;
-  }, {}),
-)
-  .sort(([left], [right]) => left.localeCompare(right))
-  .map(([letter, items]) => ({ letter, items }));
+const records = sortRecords(vinylData.records as VinylRecord[]);
+const sections = buildSections(records);
+const recordContextById: Record<
+  string,
+  { previousRecord: VinylRecord | null; nextRecord: VinylRecord | null }
+> = Object.fromEntries(
+  records.map((record, index) => [
+    record.id,
+    {
+      previousRecord: index > 0 ? records[index - 1] : null,
+      nextRecord: index < records.length - 1 ? records[index + 1] : null,
+    },
+  ]),
+);
 ---
 
 <!doctype html>
@@ -88,28 +63,35 @@ const sections = Object.entries(
                 <h2 class="sr-only">{letter}</h2>
                 <div class="album-grid">
                   {items.map((record) => {
-                    const cover = getCoverImage(record);
+                    const cover = getListingCover(record);
 
                     return (
                       <article class="album-card">
-                        <div class="album-frame">
-                          {
-                            cover ? (
-                              <img
-                                src={cover.src}
-                                alt={`Cover art for ${record.title} by ${record.artist}`}
-                                width={cover.width}
-                                height={cover.height}
-                                loading="lazy"
-                                decoding="async"
-                              />
-                            ) : null
-                          }
-                        </div>
-                        <div class="album-meta">
-                          <h3 class="artist-name">{record.artist}</h3>
-                          <p class="album-title">{record.title}</p>
-                        </div>
+                        <a
+                          class="album-link"
+                          href={getDetailHref(record)}
+                          data-record-link
+                          data-record-id={record.id}
+                        >
+                          <div class="album-frame">
+                            {
+                              cover ? (
+                                <img
+                                  src={cover.src}
+                                  alt={`Cover art for ${record.title} by ${record.artist}`}
+                                  width={cover.width}
+                                  height={cover.height}
+                                  loading="lazy"
+                                  decoding="async"
+                                />
+                              ) : null
+                            }
+                          </div>
+                          <div class="album-meta">
+                            <h3 class="artist-name">{record.artist}</h3>
+                            <p class="album-title">{record.title}</p>
+                          </div>
+                        </a>
                       </article>
                     );
                   })}
@@ -121,8 +103,34 @@ const sections = Object.entries(
       </div>
     </div>
 
+    <div class="detail-modal" data-detail-modal hidden>
+      <button class="detail-backdrop" type="button" aria-label="Close detail view" data-detail-backdrop>
+      </button>
+      <div class="detail-modal-shell" role="dialog" aria-modal="true" aria-label="Vinyl record details">
+        <div class="detail-modal-panel" data-detail-modal-panel></div>
+      </div>
+    </div>
+
+    {
+      records.map((record) => {
+        const { previousRecord, nextRecord } = recordContextById[record.id];
+
+        return (
+          <template data-detail-template={record.id}>
+            <VinylDetailPanel
+              record={record}
+              previousRecord={previousRecord}
+              nextRecord={nextRecord}
+              isModal={true}
+            />
+          </template>
+        );
+      })
+    }
+
+    <script is:inline src="/scripts/vinyl-detail.js"></script>
     <script is:inline>
-      const sections = Array.from(document.querySelectorAll("[data-letter-section]"));
+      const sectionNodes = Array.from(document.querySelectorAll("[data-letter-section]"));
       const letterLinks = new Map(
         Array.from(document.querySelectorAll("[data-letter-link]")).map((link) => [
           link.dataset.letterLink,
@@ -151,9 +159,9 @@ const sections = Object.entries(
 
       const syncActiveLetter = () => {
         const threshold = Math.max(72, window.innerHeight * 0.18);
-        let currentLetter = sections[0]?.dataset.letterSection ?? "";
+        let currentLetter = sectionNodes[0]?.dataset.letterSection ?? "";
 
-        sections.forEach((section) => {
+        sectionNodes.forEach((section) => {
           if (section.getBoundingClientRect().top <= threshold) {
             currentLetter = section.dataset.letterSection;
           }
@@ -168,6 +176,163 @@ const sections = Object.entries(
         link.addEventListener("click", () => setActiveLetter(letter));
       });
       syncActiveLetter();
+
+      const pagePath = "/vinyl/";
+      const modal = document.querySelector("[data-detail-modal]");
+      const modalPanel = document.querySelector("[data-detail-modal-panel]");
+      const backdrop = document.querySelector("[data-detail-backdrop]");
+      const html = document.documentElement;
+      const body = document.body;
+      const recordLinks = new Map(
+        Array.from(document.querySelectorAll("[data-record-link]")).map((link) => [
+          link.dataset.recordId,
+          link,
+        ]),
+      );
+      let lastFocusedLink = null;
+
+      if (!history.state?.view) {
+        history.replaceState({ view: "grid" }, "", pagePath);
+      }
+
+      const showModal = () => {
+        if (!(modal instanceof HTMLElement)) return;
+        modal.hidden = false;
+        modal.classList.add("is-open");
+        html.classList.add("is-detail-open");
+        body.classList.add("is-detail-open");
+      };
+
+      const hideModal = ({ restoreFocus = true } = {}) => {
+        if (!(modal instanceof HTMLElement) || !(modalPanel instanceof HTMLElement)) return;
+        modal.classList.remove("is-open");
+        modal.hidden = true;
+        modalPanel.replaceChildren();
+        html.classList.remove("is-detail-open");
+        body.classList.remove("is-detail-open");
+        if (restoreFocus && lastFocusedLink instanceof HTMLElement) {
+          lastFocusedLink.focus();
+        }
+      };
+
+      const closeModal = () => {
+        if (history.state?.view === "record") {
+          history.back();
+          return;
+        }
+
+        hideModal();
+        history.replaceState({ view: "grid" }, "", pagePath);
+      };
+
+      const renderRecord = (recordId, { navigationMode = "none", sourceLink = null } = {}) => {
+        if (!(modalPanel instanceof HTMLElement) || !(modal instanceof HTMLElement)) return;
+
+        const recordLink = recordLinks.get(recordId);
+        const template = document.querySelector(`[data-detail-template="${recordId}"]`);
+
+        if (!(recordLink instanceof HTMLAnchorElement) || !(template instanceof HTMLTemplateElement)) {
+          console.error(`Unable to render vinyl detail for ${recordId}`);
+          return;
+        }
+
+        if (sourceLink instanceof HTMLAnchorElement) {
+          lastFocusedLink = sourceLink;
+        } else if (!(lastFocusedLink instanceof HTMLAnchorElement)) {
+          lastFocusedLink = recordLink;
+        }
+
+        modalPanel.replaceChildren(template.content.cloneNode(true));
+        showModal();
+        window.VinylDetail?.initialize(modalPanel);
+
+        const panelRoot = modalPanel.querySelector("[data-vinyl-detail-root]");
+        if (panelRoot instanceof HTMLElement) {
+          panelRoot.focus();
+        }
+
+        const href = recordLink.getAttribute("href");
+        const state = { view: "record", recordId };
+
+        if (navigationMode === "push") {
+          history.pushState(state, "", href);
+        }
+
+        if (navigationMode === "replace") {
+          history.replaceState(state, "", href);
+        }
+      };
+
+      modalPanel?.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+
+        if (target.closest("[data-modal-close]")) {
+          event.preventDefault();
+          closeModal();
+          return;
+        }
+
+        const navLink = target.closest("[data-record-nav]");
+
+        if (!(navLink instanceof HTMLAnchorElement)) return;
+        if (
+          event.defaultPrevented ||
+          event.button !== 0 ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey
+        ) {
+          return;
+        }
+
+        const nextRecordId = navLink.dataset.recordId;
+
+        if (!nextRecordId) return;
+        event.preventDefault();
+        renderRecord(nextRecordId, { navigationMode: "replace" });
+      });
+
+      recordLinks.forEach((link, recordId) => {
+        link.addEventListener("click", (event) => {
+          if (
+            event.defaultPrevented ||
+            event.button !== 0 ||
+            event.metaKey ||
+            event.ctrlKey ||
+            event.shiftKey ||
+            event.altKey
+          ) {
+            return;
+          }
+
+          event.preventDefault();
+          renderRecord(recordId, {
+            navigationMode: "push",
+            sourceLink: event.currentTarget,
+          });
+        });
+      });
+
+      backdrop?.addEventListener("click", closeModal);
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        if (!(modal instanceof HTMLElement) || !modal.classList.contains("is-open")) return;
+        event.preventDefault();
+        closeModal();
+      });
+
+      window.addEventListener("popstate", (event) => {
+        const state = event.state;
+        if (state?.view === "record" && typeof state.recordId === "string") {
+          renderRecord(state.recordId, { navigationMode: "none" });
+          return;
+        }
+
+        hideModal();
+      });
     </script>
   </body>
 </html>
@@ -193,11 +358,11 @@ const sections = Object.entries(
     --text: #1a1a1a;
     --text-muted: rgb(153 153 153 / 100%);
     --rule: #e8e8e8;
-    --rule-strong: #3b5bdb;
     --section-rule: #d0d0d0;
     --surface: #ebebeb;
     --header-spacing: 1.5rem;
     --header-font-size: clamp(1.2rem, 3vmin, 2em);
+    --detail-backdrop: rgb(245 245 245 / 74%);
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -205,9 +370,9 @@ const sections = Object.entries(
       --text: #e0e0e0;
       --text-muted: #666666;
       --rule: #3d3d3d;
-      --rule-strong: #7aa2f7;
       --section-rule: #4a4a4a;
       --surface: #2d2d2d;
+      --detail-backdrop: rgb(18 18 18 / 74%);
     }
   }
   html,
@@ -216,6 +381,10 @@ const sections = Object.entries(
     min-height: 100%;
     background: var(--background);
     color: var(--text);
+  }
+  html.is-detail-open,
+  body.is-detail-open {
+    overflow: hidden;
   }
   body {
     font-family: "Signifier", serif;
@@ -297,19 +466,20 @@ const sections = Object.entries(
     padding-top: 0;
     border-top: 0;
   }
-  .artist-name {
-    margin: 0;
-    font-weight: 400;
-  }
   .album-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
     gap: 1.5rem 1.25rem;
   }
   .album-card {
+    min-width: 0;
+  }
+  .album-link {
     display: grid;
     gap: 0.8rem;
     min-width: 0;
+    color: inherit;
+    text-decoration: none;
   }
   .album-frame {
     aspect-ratio: 1;
@@ -322,26 +492,67 @@ const sections = Object.entries(
     height: 100%;
     object-fit: cover;
   }
-  .artist-name {
-    font-size: clamp(1.05rem, 2.6vmin, 1.22rem);
-    line-height: 1.15;
-  }
   .album-meta {
     display: grid;
     gap: 0.25rem;
     min-width: 0;
   }
+  .artist-name,
   .album-title {
     margin: 0;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  }
+  .artist-name {
+    font-size: clamp(1.05rem, 2.6vmin, 1.22rem);
+    line-height: 1.15;
+    font-weight: 400;
   }
   .album-title {
+    min-width: 0;
+    overflow: hidden;
     color: var(--text-muted);
     font-size: clamp(0.92rem, 2.2vmin, 1rem);
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-style: italic;
+  }
+  .album-link:hover .artist-name,
+  .album-link:focus-visible .artist-name {
+    text-decoration: underline;
+    text-underline-offset: 0.12em;
+  }
+  .album-link:focus-visible {
+    outline: none;
+  }
+  .detail-modal[hidden] {
+    display: none;
+  }
+  .detail-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    padding: 1rem;
+  }
+  .detail-backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: var(--detail-backdrop);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+  }
+  .detail-modal-shell {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 78rem);
+    height: min(calc(100vh - 2rem), 44rem);
+    overflow: hidden;
+  }
+  .detail-modal-panel {
+    width: 100%;
+    height: 100%;
   }
   .sr-only {
     position: absolute;
@@ -366,11 +577,29 @@ const sections = Object.entries(
       grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
       gap: 2rem 1.5rem;
     }
+    .vinyl-page {
+      padding: 2rem;
+      padding-top: 1.5rem;
+    }
   }
   @media (min-width: 72rem) {
     .album-grid {
       grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
       gap: 2.25rem 1.75rem;
+    }
+  }
+  @media (max-width: 47.999rem) {
+    .detail-modal {
+      padding: 0;
+    }
+    .detail-backdrop {
+      background: var(--background);
+      backdrop-filter: none;
+    }
+    .detail-modal-shell {
+      width: 100%;
+      height: 100%;
+      max-height: none;
     }
   }
 </style>

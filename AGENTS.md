@@ -42,6 +42,7 @@ The vinyl pipeline is rooted in `data/vinyl/`.
 ### Local-only raw intake
 
 - `data/vinyl/raw/` — copied raw intake from LocalSend, gitignored
+- `data/vinyl/staging/` — per-batch local staging files, gitignored
 
 Raw intake rules:
 
@@ -50,6 +51,20 @@ Raw intake rules:
 - raw files remain immutable after copy
 - raw files keep their original iPhone names and formats
 - expected initial input format is original `.HEIC`
+
+### Local staging
+
+Each imported batch gets a staging file:
+
+- `data/vinyl/staging/<batch>.json`
+
+Staging rules:
+
+- staging is local working state, not committed source of truth
+- staging tracks imported images, record drafts, current review position, and validation state
+- `records.json` should contain only identified/promoted records
+- importer refuses re-import of already-seen source hashes by default
+- review and promotion both operate through staging files
 
 ### Committed source of truth
 
@@ -311,3 +326,68 @@ Out of scope for now:
 - identification logic
 - Discogs upload/sync
 - raw intake processing automation beyond the documented storage contract
+
+## Local Pipeline Commands
+
+Use the Python pipeline entrypoint:
+
+```bash
+nix develop --command python scripts/vinyl_pipeline.py --help
+```
+
+Core commands:
+
+- import batch from a local drop folder:
+
+```bash
+nix develop --command python scripts/vinyl_pipeline.py import ~/Downloads/phil-vinyl
+```
+
+- review a staging batch with terminal commands plus a persistent local viewer:
+
+```bash
+nix develop --command python scripts/vinyl_pipeline.py review data/vinyl/staging/<batch>.json
+```
+
+- mark a staged draft as identified/confirmed:
+
+```bash
+nix develop --command python scripts/vinyl_pipeline.py identify data/vinyl/staging/<batch>.json draft-001 --artist "Artist" --title "Album" --year 1971
+```
+
+- promote identified drafts into `data/vinyl/records.json` and generate `actual/` assets:
+
+```bash
+nix develop --command python scripts/vinyl_pipeline.py promote data/vinyl/staging/<batch>.json
+```
+
+## Review Workflow Rules
+
+The review loop is grouping-first, not identification-first.
+
+Commands:
+
+- `nf`, `nb`, `ns`, `nl`, `nr` — start a new record draft and assign the current image to that role
+- `f`, `b`, `s`, `l`, `r` — assign the current image to the current draft
+- `n` — create/select a new empty draft
+- `t` — edit the current draft note
+- `x` — skip the current image
+- `u` — undo
+- `q` — save and quit
+
+Validation policy:
+
+- hard errors: missing front image, duplicate role assignment in the same draft, image assigned more than once
+- warnings: missing back, missing spine, missing record note
+
+## Promotion Rules
+
+Promotion behavior:
+
+- only drafts whose identification status is `confirmed` are eligible
+- promotion appends new records to `data/vinyl/records.json`
+- promotion writes raw photo refs into the record `photos` fields
+- promotion generates `public/vinyl/<record-id>/actual/<role>.webp` immediately
+- promotion skips already-valid work by comparing source hashes where possible
+- promotion does not create curated `display/` assets
+- manual cropping and display-art curation remain a later separate stage

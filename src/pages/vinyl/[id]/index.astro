@@ -1,0 +1,113 @@
+---
+import vinylData from "../../../data/vinyl.generated.json";
+import VinylDetailPanel from "../../../components/VinylDetailPanel.astro";
+import { sortRecords, type VinylRecord } from "../../../lib/vinyl";
+
+const records = sortRecords(vinylData.records as VinylRecord[]);
+
+export const getStaticPaths = () =>
+  sortRecords(vinylData.records as VinylRecord[]).map((record) => ({
+    params: {
+      id: record.id,
+    },
+  }));
+
+const { id } = Astro.params;
+const recordIndex = records.findIndex((record) => record.id === id);
+
+if (recordIndex === -1) {
+  throw new Error(`Unknown vinyl record: ${id}`);
+}
+
+const record = records[recordIndex];
+const previousRecord = recordIndex > 0 ? records[recordIndex - 1] : null;
+const nextRecord =
+  recordIndex < records.length - 1 ? records[recordIndex + 1] : null;
+
+const title = `${record.artist} — ${record.title}`;
+const description = `${record.artist} ${record.title} (${record.year})`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="detail-page">
+      <div class="detail-shell">
+        <VinylDetailPanel
+          record={record}
+          previousRecord={previousRecord}
+          nextRecord={nextRecord}
+        />
+      </div>
+    </div>
+
+    <script is:inline src="/scripts/vinyl-detail.js"></script>
+  </body>
+</html>
+
+<style>
+  @font-face {
+    font-family: "Signifier";
+    src: url("/fonts/signifier/Signifier-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Signifier";
+    src: url("/fonts/signifier/Signifier-RegularItalic.ttf") format("truetype");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+  }
+  :root {
+    color-scheme: light dark;
+    --background: #f5f5f5;
+    --text: #1a1a1a;
+    --text-muted: rgb(153 153 153 / 100%);
+    --rule: #e8e8e8;
+    --section-rule: #d0d0d0;
+    --surface: #ebebeb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #121212;
+      --text: #e0e0e0;
+      --text-muted: #666666;
+      --rule: #3d3d3d;
+      --section-rule: #4a4a4a;
+      --surface: #2d2d2d;
+    }
+  }
+  html,
+  body {
+    margin: 0;
+    min-height: 100%;
+    background: var(--background);
+    color: var(--text);
+  }
+  body {
+    font-family: "Signifier", serif;
+  }
+  .detail-page {
+    min-height: 100vh;
+    padding: 1.5rem;
+  }
+  .detail-shell {
+    max-width: 78rem;
+    margin: 0 auto;
+  }
+  @media (min-width: 48rem) {
+    .detail-page {
+      padding: 2rem;
+      padding-top: 1.5rem;
+    }
+  }
+</style>

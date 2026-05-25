@@ -21,7 +21,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     },
     {
@@ -30,7 +34,9 @@
       "artist": "Bill Evans",
       "title": "Portrait in Jazz",
       "year": 1960,
-      "metadata": {},
+      "metadata": {
+        "label": "Riverside"
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -53,7 +59,14 @@
       "artist": "Can",
       "title": "Ege Bamyasi",
       "year": 1972,
-      "metadata": {},
+      "metadata": {
+        "label": "United Artists",
+        "catalogNumber": "UAS 29 605 I",
+        "format": ["LP", "Album"],
+        "country": "Germany",
+        "genre": ["Krautrock", "Experimental"],
+        "pressing": "early issue"
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -67,7 +80,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     },
     {
@@ -76,7 +93,12 @@
       "artist": "David Bowie",
       "title": "Low",
       "year": 1977,
-      "metadata": {},
+      "metadata": {
+        "label": "RCA",
+        "format": "LP",
+        "country": "UK",
+        "notes": "Sleeve shows light wear."
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -99,7 +121,15 @@
       "artist": "David Bowie",
       "title": "Station to Station",
       "year": 1976,
-      "metadata": {},
+      "metadata": {
+        "label": "RCA Victor",
+        "catalogNumber": "APL1-1327",
+        "format": ["LP", "Album"],
+        "country": "US",
+        "genre": ["Art Rock", "Soul"],
+        "pressing": "orange label",
+        "notes": ["Spine text slightly faded.", "Inner sleeve missing."]
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -113,7 +143,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     },
     {
@@ -122,7 +156,11 @@
       "artist": "Brian Eno",
       "title": "Another Green World",
       "year": 1975,
-      "metadata": {},
+      "metadata": {
+        "label": "Island",
+        "genre": "Art Rock",
+        "notes": "Placeholder notes only."
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -136,7 +174,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     },
     {
@@ -145,7 +187,12 @@
       "artist": "Fleetwood Mac",
       "title": "Rumours",
       "year": 1977,
-      "metadata": {},
+      "metadata": {
+        "label": "Warner Bros.",
+        "catalogNumber": "BSK 3010",
+        "country": "US",
+        "matrix": "scaffold only"
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -159,7 +206,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     },
     {
@@ -168,7 +219,10 @@
       "artist": "Fleetwood Mac",
       "title": "Tusk",
       "year": 1979,
-      "metadata": {},
+      "metadata": {
+        "format": ["2xLP", "Album"],
+        "notes": "Sequence intentionally starts on a non-cover role."
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -182,7 +236,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     },
     {
@@ -191,7 +249,11 @@
       "artist": "Gil Scott-Heron",
       "title": "Pieces of a Man",
       "year": 1971,
-      "metadata": {},
+      "metadata": {
+        "label": "Flying Dutchman",
+        "genre": ["Soul", "Jazz Poetry"],
+        "ownerMemo": "ignore in public UI"
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -214,7 +276,14 @@
       "artist": "Herbie Hancock",
       "title": "Head Hunters",
       "year": 1973,
-      "metadata": {},
+      "metadata": {
+        "label": "Columbia",
+        "catalogNumber": "KC 32731",
+        "format": "LP",
+        "country": "US",
+        "genre": ["Jazz-Funk"],
+        "pressing": "Terre Haute"
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -223,11 +292,7 @@
         "runout": null
       },
       "display": {
-        "front": {
-          "source": {
-            "kind": "legacy-placeholder"
-          }
-        },
+        "front": null,
         "back": null
       }
     },
@@ -246,11 +311,7 @@
         "runout": null
       },
       "display": {
-        "front": {
-          "source": {
-            "kind": "legacy-placeholder"
-          }
-        },
+        "front": null,
         "back": null
       }
     },
@@ -260,7 +321,19 @@
       "artist": "Joni Mitchell",
       "title": "Hejira",
       "year": 1976,
-      "metadata": {},
+      "metadata": {
+        "label": "Asylum",
+        "catalogNumber": "7E-1087",
+        "format": "LP",
+        "country": "US",
+        "genre": ["Folk", "Jazz"],
+        "pressing": "PRC Richmond",
+        "notes": [
+          "Dust sleeve replaced.",
+          "Fixture tests four-image ordering."
+        ],
+        "series": "ignore in public UI"
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -274,7 +347,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     },
     {
@@ -283,7 +360,10 @@
       "artist": "Kraftwerk",
       "title": "Trans-Europe Express",
       "year": 1977,
-      "metadata": {},
+      "metadata": {
+        "label": "Capitol",
+        "country": "US"
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -297,7 +377,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     },
     {
@@ -306,7 +390,12 @@
       "artist": "Laurie Anderson",
       "title": "Big Science",
       "year": 1982,
-      "metadata": {},
+      "metadata": {
+        "notes": [
+          "One long note to test paragraph rendering.",
+          "Second note line to test multi-paragraph output."
+        ]
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -329,7 +418,15 @@
       "artist": "Marvin Gaye",
       "title": "What's Going On",
       "year": 1971,
-      "metadata": {},
+      "metadata": {
+        "label": "Tamla",
+        "catalogNumber": "TS310",
+        "format": ["LP", "Gatefold"],
+        "country": "US",
+        "genre": ["Soul"],
+        "pressing": "first pressing",
+        "notes": "Corners worn."
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -343,7 +440,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     },
     {
@@ -352,7 +453,10 @@
       "artist": "Nina Simone",
       "title": "Little Girl Blue",
       "year": 1958,
-      "metadata": {},
+      "metadata": {
+        "label": "Bethlehem",
+        "format": "LP"
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -375,7 +479,12 @@
       "artist": "Nina Simone",
       "title": "Pastel Blues",
       "year": 1965,
-      "metadata": {},
+      "metadata": {
+        "label": "Philips",
+        "country": "US",
+        "genre": ["Jazz", "Blues"],
+        "condition": "ignore in public UI"
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -389,7 +498,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     },
     {
@@ -398,7 +511,10 @@
       "artist": "Patti Smith",
       "title": "Horses",
       "year": 1975,
-      "metadata": {},
+      "metadata": {
+        "label": "Arista",
+        "notes": "Testing notes-only sparse-but-not-empty path."
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -421,7 +537,10 @@
       "artist": "Roxy Music",
       "title": "For Your Pleasure",
       "year": 1973,
-      "metadata": {},
+      "metadata": {
+        "format": ["LP", "Album"],
+        "country": "UK"
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -435,7 +554,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     },
     {
@@ -444,7 +567,12 @@
       "artist": "Sade",
       "title": "Diamond Life",
       "year": 1984,
-      "metadata": {},
+      "metadata": {
+        "label": "Portrait",
+        "catalogNumber": "FR 39581",
+        "genre": ["Sophisti-pop"],
+        "notes": ["Second owner initials on inner sleeve."]
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -458,7 +586,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     },
     {
@@ -467,7 +599,14 @@
       "artist": "Talk Talk",
       "title": "Spirit of Eden",
       "year": 1988,
-      "metadata": {},
+      "metadata": {
+        "label": "Verve",
+        "catalogNumber": "835 404-1",
+        "format": "LP",
+        "country": "UK",
+        "pressing": "Townhouse",
+        "notes": "No actuals yet; tests rich display fallback."
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -481,7 +620,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     },
     {
@@ -490,7 +633,15 @@
       "artist": "Terry Callier",
       "title": "What Color Is Love",
       "year": 1972,
-      "metadata": {},
+      "metadata": {
+        "label": "Cadet",
+        "catalogNumber": "CA 50017",
+        "format": ["LP"],
+        "country": "US",
+        "genre": ["Folk Jazz"],
+        "pressing": "scaffold only",
+        "notes": "Uses display fallback while real photography is pending."
+      },
       "photos": {
         "front": null,
         "back": null,
@@ -504,7 +655,11 @@
             "kind": "legacy-placeholder"
           }
         },
-        "back": null
+        "back": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        }
       }
     }
   ]

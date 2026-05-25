@@ -1,0 +1,429 @@
+---
+import {
+  getDetailHref,
+  getDetailImages,
+  getDetailStatus,
+  getMetadataFacts,
+  getMetadataNotes,
+  type VinylRecord,
+} from "../lib/vinyl";
+
+const {
+  record,
+  previousRecord = null,
+  nextRecord = null,
+  isModal = false,
+} = Astro.props as {
+  record: VinylRecord;
+  previousRecord?: VinylRecord | null;
+  nextRecord?: VinylRecord | null;
+  isModal?: boolean;
+};
+
+const detailImages = getDetailImages(record);
+const detailStatus = getDetailStatus(record);
+const metadataFacts = getMetadataFacts(record);
+const metadataNotes = getMetadataNotes(record);
+const initialImage = detailImages[0] ?? null;
+---
+
+<article class:list={["detail-panel", { "is-modal": isModal }]} data-vinyl-detail-root tabindex="-1">
+  <div class="detail-topbar">
+    {
+      isModal ? (
+        <button class="detail-return" type="button" data-modal-close>
+          ← vinyl
+        </button>
+      ) : (
+        <a class="detail-return" href="/vinyl/">
+          ← vinyl
+        </a>
+      )
+    }
+
+    {
+      isModal ? (
+        <button class="detail-close" type="button" aria-label="Close detail view" data-modal-close>
+          close
+        </button>
+      ) : null
+    }
+  </div>
+
+  <div class="detail-layout">
+    <div class="detail-media">
+      <div class:list={["detail-hero-frame", { "is-empty": !initialImage }]}>
+        {
+          initialImage ? (
+            <img
+              src={initialImage.src}
+              alt={initialImage.alt}
+              width={initialImage.width}
+              height={initialImage.height}
+              loading="eager"
+              decoding="async"
+              data-detail-hero
+            />
+          ) : (
+            <p class="detail-empty">images pending</p>
+          )
+        }
+      </div>
+
+      {
+        detailImages.length > 1 ? (
+          <>
+            <p class="detail-current-image" data-detail-current-label>{initialImage?.label}</p>
+            <div class="detail-strip" aria-label="record image views">
+              {
+                detailImages.map((image, index) => (
+                  <button
+                    type="button"
+                    class:list={["detail-thumb", { "is-active": index === 0 }]}
+                    data-detail-thumbnail
+                    data-detail-src={image.src}
+                    data-detail-alt={image.alt}
+                    data-detail-width={String(image.width)}
+                    data-detail-height={String(image.height)}
+                    data-detail-label={image.label}
+                    aria-pressed={index === 0 ? "true" : "false"}
+                  >
+                    <img
+                      src={image.src}
+                      alt=""
+                      width={image.width}
+                      height={image.height}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <span class="detail-thumb-label">{image.label}</span>
+                  </button>
+                ))
+              }
+            </div>
+          </>
+        ) : null
+      }
+
+      {detailStatus ? <p class="detail-status">{detailStatus}</p> : null}
+    </div>
+
+    <div class="detail-copy">
+      <header class="detail-heading">
+        <div class="detail-title-row">
+          <h1 class="detail-title">{record.title}</h1>
+          <p class="detail-year">{record.year}</p>
+        </div>
+        <p class="detail-artist">{record.artist}</p>
+      </header>
+
+      {
+        metadataFacts.length > 0 ? (
+          <section class="detail-section">
+            <h2 class="detail-section-title">facts</h2>
+            <dl class="detail-facts">
+              {
+                metadataFacts.map((fact) => (
+                  <div class="detail-fact-row">
+                    <dt>{fact.label}</dt>
+                    <dd>{fact.value}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+          </section>
+        ) : null
+      }
+
+      {
+        metadataNotes.length > 0 ? (
+          <section class="detail-section">
+            <h2 class="detail-section-title">notes</h2>
+            <div class="detail-notes">
+              {metadataNotes.map((note) => <p class="detail-note">{note}</p>)}
+            </div>
+          </section>
+        ) : null
+      }
+
+    </div>
+  </div>
+
+  <nav class="detail-record-nav" aria-label="Adjacent records">
+    {
+      previousRecord ? (
+        <a
+          class="detail-record-link"
+          href={getDetailHref(previousRecord)}
+          data-record-nav
+          data-record-id={previousRecord.id}
+        >
+          ← previous
+        </a>
+      ) : (
+        <span class="detail-record-placeholder">← previous</span>
+      )
+    }
+
+    {
+      nextRecord ? (
+        <a
+          class="detail-record-link"
+          href={getDetailHref(nextRecord)}
+          data-record-nav
+          data-record-id={nextRecord.id}
+        >
+          next →
+        </a>
+      ) : (
+        <span class="detail-record-placeholder">next →</span>
+      )
+    }
+  </nav>
+</article>
+
+<style>
+  .detail-panel {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 1.5rem;
+    padding: clamp(1.1rem, 2.5vw, 1.75rem);
+    background: var(--background);
+    border: 1px solid var(--section-rule);
+    box-shadow: 0 24px 64px rgb(0 0 0 / 10%);
+    color: var(--text);
+  }
+  .detail-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .detail-return,
+  .detail-close,
+  .detail-record-link,
+  .detail-record-placeholder {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: 0.95rem;
+    line-height: 1;
+    text-decoration: none;
+  }
+  .detail-return,
+  .detail-close,
+  .detail-record-link {
+    color: var(--text-muted);
+    border-bottom: 1px solid transparent;
+  }
+  .detail-return:hover,
+  .detail-return:focus-visible,
+  .detail-close:hover,
+  .detail-close:focus-visible,
+  .detail-record-link:hover,
+  .detail-record-link:focus-visible {
+    color: var(--text);
+    border-color: currentColor;
+    outline: none;
+  }
+  .detail-layout {
+    display: grid;
+    gap: 1.5rem;
+    min-height: 0;
+  }
+  .detail-media,
+  .detail-copy {
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+    min-width: 0;
+  }
+  .detail-hero-frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: clamp(18rem, 45vw, 34rem);
+    padding: clamp(0.85rem, 2.2vw, 1.3rem);
+    background: var(--surface);
+  }
+  .detail-hero-frame.is-empty {
+    justify-content: flex-start;
+    align-items: flex-end;
+  }
+  .detail-hero-frame img {
+    display: block;
+    max-width: 100%;
+    max-height: min(70vh, 34rem);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+  .detail-empty {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+  .detail-current-image,
+  .detail-status {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+  }
+  .detail-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+  .detail-thumb {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 4.9rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--text-muted);
+    font: inherit;
+    text-align: left;
+  }
+  .detail-thumb img {
+    display: block;
+    width: 4.9rem;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: var(--surface);
+    border: 1px solid transparent;
+  }
+  .detail-thumb-label {
+    font-size: 0.76rem;
+    line-height: 1;
+    letter-spacing: 0.08em;
+  }
+  .detail-thumb:hover,
+  .detail-thumb:focus-visible,
+  .detail-thumb.is-active {
+    color: var(--text);
+    outline: none;
+  }
+  .detail-thumb:hover img,
+  .detail-thumb:focus-visible img,
+  .detail-thumb.is-active img {
+    border-color: currentColor;
+  }
+  .detail-heading {
+    display: grid;
+    gap: 0.45rem;
+  }
+  .detail-title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .detail-title,
+  .detail-year,
+  .detail-artist,
+  .detail-section-title,
+  .detail-note {
+    margin: 0;
+  }
+  .detail-title {
+    font-size: clamp(1.55rem, 4.2vmin, 2.7rem);
+    font-weight: 400;
+    line-height: 0.95;
+  }
+  .detail-year {
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .detail-artist {
+    font-size: clamp(1.08rem, 2.6vmin, 1.25rem);
+    line-height: 1.1;
+  }
+  .detail-section {
+    display: grid;
+    gap: 0.8rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--section-rule);
+  }
+  .detail-section-title {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+  }
+  .detail-facts {
+    display: grid;
+    gap: 0.65rem;
+    margin: 0;
+  }
+  .detail-fact-row {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 1rem;
+  }
+  .detail-fact-row dt,
+  .detail-fact-row dd {
+    margin: 0;
+  }
+  .detail-fact-row dt {
+    color: var(--text-muted);
+  }
+  .detail-notes {
+    display: grid;
+    gap: 0.65rem;
+  }
+  .detail-note {
+    line-height: 1.4;
+  }
+  .detail-record-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--section-rule);
+  }
+  .detail-record-placeholder {
+    color: var(--text-muted);
+    opacity: 0.35;
+  }
+  .detail-panel.is-modal {
+    height: min(calc(100vh - 2rem), 44rem);
+    overflow: hidden;
+  }
+  .detail-panel.is-modal .detail-media,
+  .detail-panel.is-modal .detail-copy {
+    min-height: 0;
+  }
+  .detail-panel.is-modal .detail-hero-frame {
+    min-height: 0;
+    height: 100%;
+  }
+  @media (min-width: 64rem) {
+    .detail-layout {
+      grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+      gap: 2rem;
+    }
+  }
+  @media (max-width: 47.999rem) {
+    .detail-strip {
+      gap: 0.65rem;
+    }
+    .detail-panel.is-modal {
+      height: 100dvh;
+      border: 0;
+      box-shadow: none;
+    }
+    .detail-thumb {
+      min-width: 4.25rem;
+    }
+    .detail-thumb img {
+      width: 4.25rem;
+    }
+  }
+</style>

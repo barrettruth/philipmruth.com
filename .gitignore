@@ -24,4 +24,5 @@ pnpm-debug.log*
 .vercel/
 
 data/vinyl/raw/
+data/vinyl/staging/
 src/data/vinyl.generated.json
