@@ -184,10 +184,11 @@ const initialImage = detailImages[0] ?? null;
 
 <style>
   .detail-panel {
+    box-sizing: border-box;
     display: grid;
     grid-template-rows: auto minmax(0, 1fr) auto;
-    gap: 1.5rem;
-    padding: clamp(1.1rem, 2.5vw, 1.75rem);
+    gap: clamp(0.85rem, 1.6vw, 1.25rem);
+    padding: clamp(1rem, 2vw, 1.5rem);
     background: var(--background);
     border: 1px solid var(--section-rule);
     box-shadow: 0 24px 64px rgb(0 0 0 / 10%);
@@ -230,21 +231,25 @@ const initialImage = detailImages[0] ?? null;
   }
   .detail-layout {
     display: grid;
-    gap: 1.5rem;
+    align-items: start;
+    gap: clamp(1rem, 2vw, 1.5rem);
     min-height: 0;
   }
   .detail-media,
   .detail-copy {
     display: grid;
     align-content: start;
-    gap: 1rem;
+    gap: 0.75rem;
     min-width: 0;
   }
   .detail-hero-frame {
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: clamp(18rem, 45vw, 34rem);
+    aspect-ratio: 1;
+    width: min(100%, 24rem, calc(100vh - 20rem));
+    min-height: 0;
     padding: clamp(0.85rem, 2.2vw, 1.3rem);
     background: var(--surface);
   }
@@ -254,10 +259,8 @@ const initialImage = detailImages[0] ?? null;
   }
   .detail-hero-frame img {
     display: block;
-    max-width: 100%;
-    max-height: min(70vh, 34rem);
-    width: auto;
-    height: auto;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
   }
   .detail-empty {
@@ -270,6 +273,7 @@ const initialImage = detailImages[0] ?? null;
     margin: 0;
     color: var(--text-muted);
     font-size: 0.88rem;
+    line-height: 1.2;
   }
   .detail-strip {
     display: flex;
@@ -290,6 +294,7 @@ const initialImage = detailImages[0] ?? null;
   .detail-thumb img {
     display: block;
     width: 4.9rem;
+    height: 4.9rem;
     aspect-ratio: 1;
     object-fit: cover;
     background: var(--surface);
@@ -331,7 +336,8 @@ const initialImage = detailImages[0] ?? null;
   .detail-title {
     font-size: clamp(1.55rem, 4.2vmin, 2.7rem);
     font-weight: 400;
-    line-height: 0.95;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
   }
   .detail-year {
     color: var(--text-muted);
@@ -385,7 +391,7 @@ const initialImage = detailImages[0] ?? null;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding-top: 1rem;
+    padding-top: 0.85rem;
     border-top: 1px solid var(--section-rule);
   }
   .detail-record-placeholder {
@@ -401,12 +407,11 @@ const initialImage = detailImages[0] ?? null;
     min-height: 0;
   }
   .detail-panel.is-modal .detail-hero-frame {
-    min-height: 0;
-    height: 100%;
+    height: auto;
   }
   @media (min-width: 64rem) {
     .detail-layout {
-      grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+      grid-template-columns: minmax(18rem, 26rem) minmax(18rem, 1fr);
       gap: 2rem;
     }
   }
@@ -424,6 +429,7 @@ const initialImage = detailImages[0] ?? null;
     }
     .detail-thumb img {
       width: 4.25rem;
+      height: 4.25rem;
     }
   }
 </style>

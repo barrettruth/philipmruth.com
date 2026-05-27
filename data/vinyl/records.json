@@ -292,7 +292,11 @@
         "runout": null
       },
       "display": {
-        "front": null,
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
         "back": null
       }
     },
@@ -311,7 +315,11 @@
         "runout": null
       },
       "display": {
-        "front": null,
+        "front": {
+          "source": {
+            "kind": "legacy-placeholder"
+          }
+        },
         "back": null
       }
     },

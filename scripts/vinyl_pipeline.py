@@ -303,6 +303,11 @@ def validate_staging(data: dict[str, Any]) -> dict[str, list[str]]:
         draft_errors: list[str] = []
         draft_warnings: list[str] = []
         items = assigned_images_for_draft(data, draft["id"])
+        identified = draft.get("identified", {})
+        has_note = bool((draft.get("note") or "").strip())
+        confirmed = identified.get("status") == "confirmed"
+        artist = identified.get("artist") if isinstance(identified.get("artist"), str) else ""
+        title = identified.get("title") if isinstance(identified.get("title"), str) else ""
         role_map: dict[str, list[str]] = {}
         for image in items:
             role = image.get("role")
@@ -311,8 +316,14 @@ def validate_staging(data: dict[str, Any]) -> dict[str, list[str]]:
             if assigned_counts.get(image.get("rawSha256"), 0) > 1:
                 draft_errors.append(f"{image['filename']} is assigned more than once")
 
+        if not items and (has_note or confirmed or draft.get("promotedRecordId")):
+            draft_errors.append("no images assigned")
         if items and "front" not in role_map:
             draft_errors.append("missing front image")
+        if confirmed and not artist.strip():
+            draft_errors.append("identified artist missing")
+        if confirmed and not title.strip():
+            draft_errors.append("identified title missing")
 
         for role, filenames in sorted(role_map.items()):
             if len(filenames) > 1:
@@ -322,7 +333,7 @@ def validate_staging(data: dict[str, Any]) -> dict[str, list[str]]:
             draft_warnings.append("missing back image")
         if items and "spine" not in role_map:
             draft_warnings.append("missing spine image")
-        if items and not (draft.get("note") or "").strip():
+        if items and not has_note:
             draft_warnings.append("record note missing")
 
         draft["validation"] = {
@@ -763,17 +774,23 @@ def import_batch(
     if not source_files:
         raise typer.Exit(f"No HEIC/HEIF files found in {source_dir}")
 
-    existing_hashes = collect_existing_import_hashes() if not force else {}
-    if existing_hashes:
-        # warm duplicate detection by hashing source files before copying
-        overlaps = []
-        for source_path in source_files:
-            source_sha = sha256_file(source_path)
-            if source_sha in existing_hashes:
-                overlaps.append((source_path.name, sorted(set(existing_hashes[source_sha]))))
-        if overlaps:
-            details = "; ".join(f"{name} already seen in {', '.join(locations)}" for name, locations in overlaps)
-            raise typer.Exit(f"Refusing import: {details}")
+    existing_hashes = collect_existing_import_hashes()
+    overlaps = []
+    batch_hashes: dict[str, str] = {}
+    for source_path in source_files:
+        source_sha = sha256_file(source_path)
+        duplicate_name = batch_hashes.get(source_sha)
+        if duplicate_name:
+            raise typer.Exit(f"Refusing import because {source_path.name} duplicates {duplicate_name} within {source_dir}")
+        batch_hashes[source_sha] = source_path.name
+        if source_sha in existing_hashes:
+            overlaps.append((source_path.name, sorted(set(existing_hashes[source_sha]))))
+    if overlaps and not force:
+        details = "; ".join(f"{name} already seen in {', '.join(locations)}" for name, locations in overlaps)
+        raise typer.Exit(f"Refusing import: {details}")
+    if overlaps and force:
+        details = "; ".join(f"{name} already seen in {', '.join(locations)}" for name, locations in overlaps)
+        console.print(f"[yellow]Force-importing duplicate source file(s):[/yellow] {details}")
 
     batch_dir.mkdir(parents=True, exist_ok=False)
     images = build_import_images(source_dir, batch_dir) if not force else []
@@ -784,13 +801,16 @@ def import_batch(
             shutil.copy2(source_path, raw_path)
             item = metadata.get(str(source_path), {})
             source_sha = sha256_file(source_path)
+            raw_sha = sha256_file(raw_path)
+            if raw_sha != source_sha:
+                raise typer.Exit(f"Hash mismatch after copy for {source_path.name}")
             images.append(
                 {
                     "filename": source_path.name,
                     "sourcePath": str(source_path.resolve()),
                     "rawPath": to_repo_relative(raw_path),
                     "sourceSha256": source_sha,
-                    "rawSha256": sha256_file(raw_path),
+                    "rawSha256": raw_sha,
                     "size": source_path.stat().st_size,
                     "capturedAt": parse_exif_datetime(item.get("DateTimeOriginal") or item.get("CreateDate")),
                     "width": item.get("ImageWidth"),
@@ -916,9 +936,17 @@ def identify(
         draft_id = Prompt.ask("draft id", choices=choices, default=choices[0])
 
     draft = select_draft(data, draft_id)
-    artist = artist or Prompt.ask("artist", default=draft.get("identified", {}).get("artist") or "")
-    title = title or Prompt.ask("title", default=draft.get("identified", {}).get("title") or "")
-    year_value = year or int(Prompt.ask("year", default=str(draft.get("identified", {}).get("year") or datetime.now().year)))
+    artist = (artist or Prompt.ask("artist", default=draft.get("identified", {}).get("artist") or "")).strip()
+    title = (title or Prompt.ask("title", default=draft.get("identified", {}).get("title") or "")).strip()
+    if not artist:
+        raise typer.Exit("Artist is required")
+    if not title:
+        raise typer.Exit("Title is required")
+    year_value = (
+        year
+        if year is not None
+        else int(Prompt.ask("year", default=str(draft.get("identified", {}).get("year") or datetime.now().year)))
+    )
     metadata = draft.get("identified", {}).get("metadata") or {}
     if metadata_json is not None:
         metadata = normalize_metadata(read_json(metadata_json))
@@ -954,16 +982,29 @@ def promote(
             continue
         if draft.get("validation", {}).get("errors"):
             raise typer.Exit(f"Cannot promote {draft['id']} with validation errors")
+        artist = identified.get("artist").strip() if isinstance(identified.get("artist"), str) else ""
+        title = identified.get("title").strip() if isinstance(identified.get("title"), str) else ""
+        year_value = identified.get("year")
+        if not artist:
+            raise typer.Exit(f"Cannot promote {draft['id']} without an artist")
+        if not title:
+            raise typer.Exit(f"Cannot promote {draft['id']} without a title")
+        if not isinstance(year_value, int):
+            raise typer.Exit(f"Cannot promote {draft['id']} without a year")
 
         record_id = find_next_record_id(records)
-        slug = identified.get("slug") or slugify(f"{identified['artist']}-{identified['title']}")
+        slug = identified.get("slug") or slugify(f"{artist}-{title}")
         photo_refs = build_photo_refs(data, draft["id"])
+        if not any(isinstance(ref, dict) for ref in photo_refs.values()):
+            raise typer.Exit(f"Cannot promote {draft['id']} without assigned images")
+        if photo_refs["front"] is None:
+            raise typer.Exit(f"Cannot promote {draft['id']} without a front image")
         existing_record = next((record for record in records if record.get("id") == record_id), None)
         existing_photos = existing_record.get("photos", {}) if existing_record else {}
 
         for role, ref in photo_refs.items():
             if isinstance(ref, dict):
-                ensure_actual_asset(ref["rawPath"], record_id, role, existing_photos.get(role), public_root)
+                ensure_actual_asset(ref["rawPath"], record_id, role, existing_photos.get(role) or ref, public_root)
 
         metadata = merge_note_into_metadata(
             normalize_metadata(identified.get("metadata")),
@@ -974,9 +1015,9 @@ def promote(
             {
                 "id": record_id,
                 "slug": slug,
-                "artist": identified["artist"],
-                "title": identified["title"],
-                "year": identified["year"],
+                "artist": artist,
+                "title": title,
+                "year": year_value,
                 "metadata": metadata,
                 "photos": photo_refs,
                 "display": {"front": None, "back": None},

@@ -129,7 +129,7 @@ It tracks:
 
 - stable record identity
 - human-readable metadata
-- raw source photo references
+- raw source photo references with path/hash/filename
 - curated display image provenance
 - open-ended metadata for future use
 
@@ -149,9 +149,21 @@ It does **not** redundantly store public asset paths that can be derived from th
       "year": 1971,
       "metadata": {},
       "photos": {
-        "front": { "raw": "raw/2026-05-24-localsend-01/IMG_0001.HEIC" },
-        "back": { "raw": "raw/2026-05-24-localsend-01/IMG_0002.HEIC" },
-        "spine": { "raw": "raw/2026-05-24-localsend-01/IMG_0003.HEIC" },
+        "front": {
+          "rawPath": "data/vinyl/raw/2026-05-24-localsend-01/IMG_0001.HEIC",
+          "rawSha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+          "filename": "IMG_0001.HEIC"
+        },
+        "back": {
+          "rawPath": "data/vinyl/raw/2026-05-24-localsend-01/IMG_0002.HEIC",
+          "rawSha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+          "filename": "IMG_0002.HEIC"
+        },
+        "spine": {
+          "rawPath": "data/vinyl/raw/2026-05-24-localsend-01/IMG_0003.HEIC",
+          "rawSha256": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+          "filename": "IMG_0003.HEIC"
+        },
         "label": null,
         "runout": null
       },
@@ -193,6 +205,14 @@ Supported provenance kinds should be simple and explicit, for example:
 - `legacy-placeholder`
 
 If the source is external, store an original URL when known.
+
+Photo refs are repo-relative and currently use:
+
+- `rawPath`
+- `rawSha256`
+- `filename`
+
+Display refs remain provenance objects only. Public `display/` and `actual/` asset paths are derived from the stable record ID plus the fixed filename convention.
 
 ## Frontend Export Model
 
@@ -258,6 +278,7 @@ Frontend export rules:
 - each `images.actual` item includes `role`, `src`, `width`, and `height`
 - raw source paths never appear in the frontend export
 - display/actual distinction must be preserved in the export
+- actual assets are exported only when the matching `records.json` `photos.<role>` entry exists
 
 ## Asset Rules
 
@@ -284,7 +305,8 @@ Rules:
 - fixed role filenames: `front.webp`, `back.webp`, `spine.webp`, etc.
 - these are curated processed web assets, not raw HEICs
 - these preserve role meaning and gallery order comes from the JSON export, not filenames
-- exact click-through behavior is not part of the initial rendering scope
+- these are frontend-visible only when backed by the matching canonical `photos.<role>` ref
+- detail/gallery behavior is driven by frontend code, not asset filenames
 
 ## Fallback Rule
 
@@ -294,38 +316,35 @@ For initial listing/grid rendering:
 - if `images.display.front` is `null`, the frontend may fall back to the first `images.actual` item whose `role` is `front`
 - the generator must not collapse that distinction; the fallback is a frontend concern
 
-## Legacy State in This Repo
+## Current Repo State
 
-The current repo still contains a legacy vinyl setup:
+The repo now uses the generated vinyl data flow end to end:
 
-- `src/data/vinyl.json`
-- `public/vinyl/*.webp`
-- `src/pages/vinyl/index.astro` expecting the old flat `albums` contract
+- `src/pages/vinyl/index.astro` reads `src/data/vinyl.generated.json`
+- `src/pages/vinyl/[id]/index.astro` renders detail pages by stable record ID
+- `src/components/VinylDetailPanel.astro` renders the shared detail UI
+- `src/lib/vinyl.ts` owns vinyl types, sorting, fallback, and detail helpers
+- `public/scripts/vinyl-detail.js` drives the modal/detail navigation behavior
 
-Those root-level WebPs are temporary placeholder art only. They are not a valid long-term contract and should be migrated into the nested `public/vinyl/<record-id>/display/front.webp` structure.
-
-All current placeholder WebPs are already `360x360`, so they can be moved into the new nested display layout without needing resize changes first.
+There is no longer a committed `src/data/vinyl.json` source of truth.
 
 ## Current Frontend Scope
 
-The current implementation scope is **initial rendering only**.
+The current implementation renders both the listing and detail experiences from the generated export.
 
 In scope:
 
 - loading the generated `records` export
 - rendering the vinyl listing/grid
 - using `images.display.front` with the defined frontend fallback rule
-- migrating placeholder assets into the new nested public layout
-- updating the page/data contract away from the old fake `albums` shape
+- rendering detail pages/modal UI from `images.display` and `images.actual`
+- preserving the display/actual distinction in the exported data model
 
 Out of scope for now:
 
-- click-through detail page behavior
-- lightbox/gallery interaction
-- on-click rendering of actual front/back/spine views
-- identification logic
 - Discogs upload/sync
-- raw intake processing automation beyond the documented storage contract
+- automated identification logic beyond the local staging commands
+- automated display-art curation/cropping
 
 ## Local Pipeline Commands
 
@@ -377,7 +396,7 @@ Commands:
 
 Validation policy:
 
-- hard errors: missing front image, duplicate role assignment in the same draft, image assigned more than once
+- hard errors: no images assigned for a non-empty/confirmed draft, missing front image, duplicate role assignment in the same draft, image assigned more than once, confirmed draft missing artist/title
 - warnings: missing back, missing spine, missing record note
 
 ## Promotion Rules
@@ -386,7 +405,8 @@ Promotion behavior:
 
 - only drafts whose identification status is `confirmed` are eligible
 - promotion appends new records to `data/vinyl/records.json`
-- promotion writes raw photo refs into the record `photos` fields
+- promotion requires non-empty artist/title/year plus an assigned front image
+- promotion writes `rawPath`, `rawSha256`, and original `filename` refs into the record `photos` fields
 - promotion generates `public/vinyl/<record-id>/actual/<role>.webp` immediately
 - promotion skips already-valid work by comparing source hashes where possible
 - promotion does not create curated `display/` assets

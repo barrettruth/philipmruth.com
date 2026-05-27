@@ -98,19 +98,37 @@ const generated = {
       const backDisplayPath = path.join(publicVinylPath, record.id, "display", "back.webp");
       const hasFrontDisplayAsset = await fileExists(frontDisplayPath);
       const hasBackDisplayAsset = await fileExists(backDisplayPath);
+      const hasFrontDisplayEntry =
+        record.display?.front !== null && record.display?.front !== undefined;
+      const hasBackDisplayEntry =
+        record.display?.back !== null && record.display?.back !== undefined;
 
-      if (record.display?.front && !hasFrontDisplayAsset) {
+      if (hasFrontDisplayEntry && !hasFrontDisplayAsset) {
         throw new Error(`Missing display front asset for ${record.id}`);
       }
+      if (!hasFrontDisplayEntry && hasFrontDisplayAsset) {
+        throw new Error(`Unexpected display front asset without manifest entry for ${record.id}`);
+      }
 
-      if (record.display?.back && !hasBackDisplayAsset) {
+      if (hasBackDisplayEntry && !hasBackDisplayAsset) {
         throw new Error(`Missing display back asset for ${record.id}`);
+      }
+      if (!hasBackDisplayEntry && hasBackDisplayAsset) {
+        throw new Error(`Unexpected display back asset without manifest entry for ${record.id}`);
       }
 
       const actualImages = await Promise.all(
         actualImageRoles.map(async (role) => {
+          const hasPhotoEntry =
+            record.photos?.[role] !== null &&
+            typeof record.photos?.[role] === "object" &&
+            !Array.isArray(record.photos?.[role]);
           const filePath = path.join(publicVinylPath, record.id, "actual", `${role}.webp`);
-          return (await fileExists(filePath))
+          const hasActualAsset = await fileExists(filePath);
+          if (hasPhotoEntry && !hasActualAsset) {
+            throw new Error(`Missing actual ${role} asset for ${record.id}`);
+          }
+          return hasPhotoEntry
             ? {
                 role,
                 ...(await createImageAsset(filePath, `/vinyl/${record.id}/actual/${role}.webp`)),
@@ -128,10 +146,10 @@ const generated = {
         metadata: record.metadata ?? {},
         images: {
           display: {
-            front: record.display?.front
+            front: hasFrontDisplayEntry
               ? await createImageAsset(frontDisplayPath, `/vinyl/${record.id}/display/front.webp`)
               : null,
-            back: record.display?.back
+            back: hasBackDisplayEntry
               ? await createImageAsset(backDisplayPath, `/vinyl/${record.id}/display/back.webp`)
               : null,
           },
