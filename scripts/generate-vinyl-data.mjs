@@ -2,9 +2,17 @@ import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const repoRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+);
 const recordsPath = path.join(repoRoot, "data", "vinyl", "records.json");
-const generatedPath = path.join(repoRoot, "src", "data", "vinyl.generated.json");
+const generatedPath = path.join(
+  repoRoot,
+  "src",
+  "data",
+  "vinyl.generated.json",
+);
 const publicVinylPath = path.join(repoRoot, "public", "vinyl");
 const actualImageRoles = ["front", "back", "spine", "label", "runout"];
 const vinylIdPattern = /^vinyl-\d{4}$/;
@@ -94,8 +102,18 @@ const generated = {
   schemaVersion: 1,
   records: await Promise.all(
     source.records.map(async (record) => {
-      const frontDisplayPath = path.join(publicVinylPath, record.id, "display", "front.webp");
-      const backDisplayPath = path.join(publicVinylPath, record.id, "display", "back.webp");
+      const frontDisplayPath = path.join(
+        publicVinylPath,
+        record.id,
+        "display",
+        "front.webp",
+      );
+      const backDisplayPath = path.join(
+        publicVinylPath,
+        record.id,
+        "display",
+        "back.webp",
+      );
       const hasFrontDisplayAsset = await fileExists(frontDisplayPath);
       const hasBackDisplayAsset = await fileExists(backDisplayPath);
       const hasFrontDisplayEntry =
@@ -107,14 +125,18 @@ const generated = {
         throw new Error(`Missing display front asset for ${record.id}`);
       }
       if (!hasFrontDisplayEntry && hasFrontDisplayAsset) {
-        throw new Error(`Unexpected display front asset without manifest entry for ${record.id}`);
+        throw new Error(
+          `Unexpected display front asset without manifest entry for ${record.id}`,
+        );
       }
 
       if (hasBackDisplayEntry && !hasBackDisplayAsset) {
         throw new Error(`Missing display back asset for ${record.id}`);
       }
       if (!hasBackDisplayEntry && hasBackDisplayAsset) {
-        throw new Error(`Unexpected display back asset without manifest entry for ${record.id}`);
+        throw new Error(
+          `Unexpected display back asset without manifest entry for ${record.id}`,
+        );
       }
 
       const actualImages = await Promise.all(
@@ -123,7 +145,12 @@ const generated = {
             record.photos?.[role] !== null &&
             typeof record.photos?.[role] === "object" &&
             !Array.isArray(record.photos?.[role]);
-          const filePath = path.join(publicVinylPath, record.id, "actual", `${role}.webp`);
+          const filePath = path.join(
+            publicVinylPath,
+            record.id,
+            "actual",
+            `${role}.webp`,
+          );
           const hasActualAsset = await fileExists(filePath);
           if (hasPhotoEntry && !hasActualAsset) {
             throw new Error(`Missing actual ${role} asset for ${record.id}`);
@@ -131,7 +158,10 @@ const generated = {
           return hasPhotoEntry
             ? {
                 role,
-                ...(await createImageAsset(filePath, `/vinyl/${record.id}/actual/${role}.webp`)),
+                ...(await createImageAsset(
+                  filePath,
+                  `/vinyl/${record.id}/actual/${role}.webp`,
+                )),
               }
             : null;
         }),
@@ -147,10 +177,16 @@ const generated = {
         images: {
           display: {
             front: hasFrontDisplayEntry
-              ? await createImageAsset(frontDisplayPath, `/vinyl/${record.id}/display/front.webp`)
+              ? await createImageAsset(
+                  frontDisplayPath,
+                  `/vinyl/${record.id}/display/front.webp`,
+                )
               : null,
             back: hasBackDisplayEntry
-              ? await createImageAsset(backDisplayPath, `/vinyl/${record.id}/display/back.webp`)
+              ? await createImageAsset(
+                  backDisplayPath,
+                  `/vinyl/${record.id}/display/back.webp`,
+                )
               : null,
           },
           actual: actualImages.filter((image) => image !== null),
